@@ -2,7 +2,7 @@ class Purchase < ApplicationRecord
 	belongs_to :showtime
 
 	validates_presence_of :purchaser_name, :showtime 
-	validates :email, presence: true, format: { with: /[\w.]+@[\w]+\.[a-zA-Z]+\z/ }
+	validates :purchaser_email, presence: true, format: { with: /[\w.]+@[\w]+\.[a-zA-Z]+\z/ }
 
 	validate :credit_card_number_valid
 	validate :credit_card_expiration_date_valid
@@ -14,7 +14,7 @@ class Purchase < ApplicationRecord
 	end	
 
 	def credit_card_number=(cc_number)
-		@credit_card_number = cc_number.to_s.split(' ').join.to_i
+		@credit_card_number = cc_number.to_s.split(' ').join
 	end	
 
 	def credit_card_expiration_date
@@ -28,10 +28,10 @@ class Purchase < ApplicationRecord
 	private
 	def credit_card_number_valid
 		#presence
-		if !(credit_card_number)
+		if !(credit_card_number) || credit_card_number == "" || credit_card_number == "nil"
 			errors.add(:credit_card_number, "must be entered" )
 		#there aren't weird characters
-		elsif credit_card_number.to_i != credit_card_number
+		elsif (credit_card_number.to_s =~ /\d+\z/) != 0
 			errors.add(:credit_card_number, "can only be numbers")
 		#correct length
 		elsif credit_card_number.to_s.length != 16
@@ -43,14 +43,15 @@ class Purchase < ApplicationRecord
 		current_year = DateTime.current.year
 		current_month = DateTime.current.month
 
-		card_month = credit_card_expiration_date.split("/")[0]
-		card_year = credit_card_expiration_date.split("/")[1]
-
+		if credit_card_expiration_date
+			card_month = credit_card_expiration_date.split("/")[0].to_i
+			card_year = credit_card_expiration_date.split("/")[1].to_i
+		end
 		#presence
-		if !(credit_card_expiration_date)
-			errors.add(:credit_card_expiration_date, "must be present")
+		if !(credit_card_expiration_date) || credit_card_expiration_date == ""
+			errors.add(:credit_card_expiration_date, "must be entered")
 		#format
-		elsif !(credit_card_expiration_date =~ /\d\d\/20\d\d/)
+		elsif !(credit_card_expiration_date =~ /\d\d?\/20\d\d/)
 			errors.add(:credit_card_expiration_date, "format is invalid")
 		#legit month
 		elsif card_month > 13 || card_month < 1
