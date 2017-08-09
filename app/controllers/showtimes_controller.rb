@@ -1,0 +1,3 @@
+class ShowtimesController < ApplicationController
+
+end

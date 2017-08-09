@@ -1,0 +1,8 @@
+<h2>Currently Playing:</h2>
+<div>
+	<ul>
+		<% @movies.each do |movie| %>
+			<li><%= movie.name %></li>
+		<% end %>
+	</ul>
+</div>
